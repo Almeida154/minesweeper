@@ -114,7 +114,7 @@ public class FieldTest {
     @Test
     void checkedToString() {
         this.field.toggleCheck();
-        assertTrue(this.field.toString().equals("[🚩]"));
+        assertTrue(this.field.toString().equals("⚑"));
     }
 
     @Test
@@ -122,14 +122,14 @@ public class FieldTest {
         this.field.setArmed(true);
         assertThrows(ExplosionException.class, () -> {
             this.field.open();
-            assertTrue(this.field.toString().equals("[💥]"));
+            assertTrue(this.field.toString().equals("☉"));
         });
     }
 
     @Test
     void openedToString() {
         this.field.open();
-        assertTrue(this.field.toString().equals("[ ]"));
+        assertTrue(this.field.toString().equals(" "));
     }
 
     @Test
@@ -139,11 +139,11 @@ public class FieldTest {
         this.field.addNeighbor(someNeighbor);
         Long bombs = this.field.getNeighborhoodBombs();
         this.field.open();
-        assertTrue(this.field.toString().equals("[" + bombs + "]"));
+        assertTrue(this.field.toString().equals(bombs.toString()));
     }
 
     @Test
     void closedToString() {
-        assertTrue(this.field.toString().equals("[?]"));
+        assertTrue(this.field.toString().equals("?"));
     }
 }
