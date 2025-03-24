@@ -69,4 +69,28 @@ public class FieldTest {
         this.field.open();
         assertTrue(this.field.isOpened() && someNeighbor.isOpened() && neighborOfMyNeighbor.isOpened());
     }
+
+    @Test
+    void checkNeighborhoodBombs() {
+        Field someNeighbor = new Field(3, 4);
+        someNeighbor.setArmed(true);
+        this.field.addNeighbor(someNeighbor);
+        Long bombs = this.field.getNeighborhoodBombs();
+        assertTrue(bombs == 1);
+    }
+
+    @Test
+    void checkFieldReveled() {
+        assertFalse(this.field.isDone());
+        this.field.open();
+        assertTrue(this.field.isDone());
+    }
+
+    @Test
+    void checkFieldProtected() {
+        assertFalse(this.field.isDone());
+        this.field.setArmed(true);
+        this.field.toggleCheck();
+        assertTrue(this.field.isDone());
+    }
 }
