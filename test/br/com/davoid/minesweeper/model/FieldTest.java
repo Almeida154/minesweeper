@@ -71,7 +71,7 @@ public class FieldTest {
     }
 
     @Test
-    void checkNeighborhoodBombs() {
+    void neighborhoodBombs() {
         Field someNeighbor = new Field(3, 4);
         someNeighbor.setArmed(true);
         this.field.addNeighbor(someNeighbor);
@@ -80,14 +80,14 @@ public class FieldTest {
     }
 
     @Test
-    void checkFieldReveled() {
+    void fieldReveled() {
         assertFalse(this.field.isDone());
         this.field.open();
         assertTrue(this.field.isDone());
     }
 
     @Test
-    void checkFieldProtected() {
+    void fieldProtected() {
         assertFalse(this.field.isDone());
         this.field.setArmed(true);
         this.field.toggleCheck();
@@ -109,5 +109,41 @@ public class FieldTest {
         assertFalse(this.field.isArmed());
         assertFalse(this.field.isChecked());
         assertFalse(this.field.isOpened());
+    }
+
+    @Test
+    void checkedToString() {
+        this.field.toggleCheck();
+        assertTrue(this.field.toString().equals("[🚩]"));
+    }
+
+    @Test
+    void explodedToString() {
+        this.field.setArmed(true);
+        assertThrows(ExplosionException.class, () -> {
+            this.field.open();
+            assertTrue(this.field.toString().equals("[💥]"));
+        });
+    }
+
+    @Test
+    void openedToString() {
+        this.field.open();
+        assertTrue(this.field.toString().equals("[ ]"));
+    }
+
+    @Test
+    void dangerousNeighborhoodToString() {
+        Field someNeighbor = new Field(3, 4);
+        someNeighbor.setArmed(true);
+        this.field.addNeighbor(someNeighbor);
+        Long bombs = this.field.getNeighborhoodBombs();
+        this.field.open();
+        assertTrue(this.field.toString().equals("[" + bombs + "]"));
+    }
+
+    @Test
+    void closedToString() {
+        assertTrue(this.field.toString().equals("[?]"));
     }
 }
