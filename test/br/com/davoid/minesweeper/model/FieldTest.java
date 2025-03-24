@@ -93,4 +93,21 @@ public class FieldTest {
         this.field.toggleCheck();
         assertTrue(this.field.isDone());
     }
+
+    @Test
+    void restoreField() {
+        this.field.setArmed(true);
+        this.field.setChecked(true);
+        this.field.setOpened(true);
+
+        assertTrue(this.field.isArmed());
+        assertTrue(this.field.isChecked());
+        assertTrue(this.field.isOpened());
+
+        this.field.restore();
+
+        assertFalse(this.field.isArmed());
+        assertFalse(this.field.isChecked());
+        assertFalse(this.field.isOpened());
+    }
 }
