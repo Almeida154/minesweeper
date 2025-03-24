@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Field {
-    static private final int DIAGONAL_DISTANCE = 2;
     static private final int CROSS_DISTANCE = 1;
+    static private final int DIAGONAL_DISTANCE = 2;
     private final int row;
     private final int column;
 
@@ -49,12 +49,14 @@ public class Field {
 
     public boolean open() {
         if (this.isChecked() || this.isOpened()) return false;
-        if (this.isArmed()) throw new ExplosionException();
-
-        boolean isNeighborsSafe = this.getNeighbors().stream().noneMatch(neighbor -> neighbor.isArmed());
-        if (isNeighborsSafe) this.getNeighbors().forEach(neighbor -> neighbor.open());
 
         this.setOpened(true);
+
+        if (this.isArmed()) throw new ExplosionException();
+
+        boolean isNeighborsSafe = this.getNeighborhoodBombs() == 0;
+        if (isNeighborsSafe) this.getNeighbors().forEach(neighbor -> neighbor.open());
+
         return true;
     }
 
@@ -73,6 +75,7 @@ public class Field {
         this.setChecked(false);
         this.setOpened(false);
     }
+
 
     public int getRow() {
         return row;
@@ -114,10 +117,10 @@ public class Field {
     public String toString() {
         Long neighborhoodBombs = this.getNeighborhoodBombs();
 
-        if (this.isChecked()) return "[🚩]";
-        if (this.isOpened() && this.isArmed()) return "[💥]";
-        if (neighborhoodBombs > 0) return "[" + neighborhoodBombs.toString() + "]";
-        if (this.isOpened()) return "[ ]";
-        return "[?]";
+        if (this.isChecked()) return "⚑";
+        if (this.isOpened() && this.isArmed()) return "☉";
+        if (neighborhoodBombs > 0 && this.isOpened()) return neighborhoodBombs.toString();
+        if (this.isOpened()) return " ";
+        return "?";
     }
 }
