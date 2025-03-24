@@ -75,6 +75,21 @@ public class Board {
         this.sortBombs();
     }
 
+    public void disableBombs() {
+        this.fields.stream().forEach(field -> field.setArmed(false));
+    }
+
+    public List<Field> getFields() {
+        return fields;
+    }
+
+    public Field getField(int row, int column) {
+        return this.getFields().stream()
+                .filter(f -> f.getRow() == row - 1 && f.getColumn() == column - 1)
+                .findFirst()
+                .get();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
