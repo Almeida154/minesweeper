@@ -1,5 +1,7 @@
 package br.com.davoid.minesweeper.model;
 
+import br.com.davoid.minesweeper.exception.ExplosionException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,15 +23,18 @@ public class Board {
     }
 
     public void openField(int row, int column) {
-        System.out.println("Coords: " + row + "," + column);
-        this.fields.parallelStream()
-                .filter(field -> field.getRow() == row - 1 && field.getColumn() == column - 1)
-                .findFirst()
-                .ifPresent(field -> field.open());
+        try {
+            this.fields.parallelStream()
+                    .filter(field -> field.getRow() == row - 1 && field.getColumn() == column - 1)
+                    .findFirst()
+                    .ifPresent(field -> field.open());
+        } catch (ExplosionException e) {
+            this.fields.stream().filter(field -> field.isArmed()).forEach(field -> field.setOpened(true));
+            throw e;
+        }
     }
 
     public void toggleFieldCheck(int row, int column) {
-        System.out.println("Check: " + row + "," + column);
         this.fields.stream()
                 .filter(field -> field.getRow() == row - 1 && field.getColumn() == column - 1)
                 .findFirst()
@@ -65,7 +70,7 @@ public class Board {
         return this.fields.stream().allMatch(field -> field.isDone());
     }
 
-    private void restart() {
+    public void restart() {
         this.fields.forEach(field -> field.restore());
         this.sortBombs();
     }
@@ -74,9 +79,28 @@ public class Board {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
+        sb.append("    ");
+
+        for (int column = 0; column < this.columnsQty; column++) {
+            sb.append(" ");
+            sb.append(column + 1);
+            sb.append(" ");
+        }
+
+        sb.append("\n—-—");
+
+        for (int column = 0; column < this.columnsQty; column++) {
+            sb.append("—-—");
+        }
+
+        sb.append("\n");
+
         int i = 0;
 
         for (int row = 0; row < this.rowsQty; row++) {
+            sb.append(row + 1 + " |");
+            sb.append(" ");
+
             for (int column = 0; column < this.rowsQty; column++) {
                 sb.append(" ");
                 sb.append(this.fields.get(i++));
@@ -84,6 +108,8 @@ public class Board {
             }
             sb.append("\n");
         }
+
+        sb.append("\nEnter 'exit' to leave.\n");
 
         return sb.toString();
     }

@@ -36,6 +36,7 @@ public class BoardConsole {
             System.out.println("Another game? (Y/n)");
             String answer = this.scanner.nextLine();
             if (answer.equalsIgnoreCase("n")) keepPlaying = false;
+            this.board.restart();
         }
     }
 
@@ -43,6 +44,7 @@ public class BoardConsole {
         try {
             this.renderPlayCycle();
         } catch (ExplosionException e) {
+            System.out.println(this.board);
             System.out.println("Game over! 💥");
         }
     }
@@ -57,6 +59,9 @@ public class BoardConsole {
             if (action == OPEN_ACTION) this.board.openField(coordinates[0], coordinates[1]);
             if (action == TOGGLE_CHECK_ACTION) this.board.toggleFieldCheck(coordinates[0], coordinates[1]);
         }
+
+        System.out.println(this.board);
+        System.out.println("You won! ✨");
     }
 
     private int[] insertCoordinates() {
@@ -81,6 +86,7 @@ public class BoardConsole {
             System.out.print("Choose an action [" + OPEN_ACTION + " - OPEN | " + TOGGLE_CHECK_ACTION + " - (UN)CHECK]: ");
             String answer = this.scanner.nextLine();
             if (answer.chars().allMatch(Character::isDigit)) action = Integer.parseInt(answer.trim());
+            if (answer.equalsIgnoreCase("Exit")) throw new ExitException();
         }
 
         return action;
