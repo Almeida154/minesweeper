@@ -1,14 +1,19 @@
 package br.com.davoid.swing_minesweeper.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-public class Board {
-    private int rowsQty = 24;
-    private int columnsQty = 24;
-    private int bombsQty = 10;
+public class Board implements BiConsumer<Field, FieldEvent> {
+    private final int rowsQty;
+    private final int columnsQty;
+    private final int bombsQty;
 
     private List<Field> fields = new ArrayList<>();
+    private Set<Consumer<Boolean>> observers = new HashSet<>();
 
     public Board(int rowsQty, int columnsQty, int bombsQty) {
         this.rowsQty = rowsQty;
@@ -20,16 +25,19 @@ public class Board {
         this.sortBombs();
     }
 
+    public void addObserver(Consumer<Boolean> observer) {
+        this.observers.add(observer);
+    }
+
+    private void notifyObservers(Boolean result) {
+        this.observers.forEach(observer -> observer.accept(result));
+    }
+
     public void openField(int row, int column) {
-        try {
-            this.fields.parallelStream()
-                    .filter(field -> field.getRow() == row - 1 && field.getColumn() == column - 1)
-                    .findFirst()
-                    .ifPresent(field -> field.open());
-        } catch (RuntimeException e) {
-            this.fields.stream().filter(field -> field.isArmed()).forEach(field -> field.setOpened(true));
-            throw e;
-        }
+        this.fields.parallelStream()
+                .filter(field -> field.getRow() == row - 1 && field.getColumn() == column - 1)
+                .findFirst()
+                .ifPresent(field -> field.open());
     }
 
     public void toggleFieldCheck(int row, int column) {
@@ -43,7 +51,9 @@ public class Board {
     private void generateFields() {
         for (int row = 0; row < this.rowsQty; row++) {
             for (int column = 0; column < this.rowsQty; column++) {
-                this.fields.add(new Field(row, column));
+                Field field = new Field(row, column);
+                field.addObserver(this);
+                this.fields.add(field);
             }
         }
     }
@@ -86,5 +96,30 @@ public class Board {
                 .filter(f -> f.getRow() == row - 1 && f.getColumn() == column - 1)
                 .findFirst()
                 .get();
+    }
+
+    public void showBombs() {
+        this.fields.stream()
+                .filter(field -> field.isArmed())
+                .filter(field -> !field.isChecked())
+                .forEach(field -> field.setOpened(true));
+    }
+
+    @Override
+    public void accept(Field field, FieldEvent fieldEvent) {
+        if (fieldEvent == FieldEvent.EXPLODE) {
+            this.showBombs();
+            this.notifyObservers(false);
+        } else if (this.isDone()) {
+            this.notifyObservers(true);
+        }
+    }
+
+    public int getRowsQty() {
+        return rowsQty;
+    }
+
+    public int getColumnsQty() {
+        return columnsQty;
     }
 }

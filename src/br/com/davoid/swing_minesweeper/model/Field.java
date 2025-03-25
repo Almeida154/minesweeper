@@ -89,6 +89,7 @@ public class Field {
         this.setArmed(false);
         this.setChecked(false);
         this.setOpened(false);
+        this.notifyObservers(FieldEvent.RESTART);
     }
 
 
